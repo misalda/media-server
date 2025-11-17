@@ -1,0 +1,45 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: media-ingressroute
+  namespace: media
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/jackett`)
+    priority: 100
+    services:
+    - name: jackett-vpn
+      port: 80
+  - kind: Rule
+    match: PathPrefix(`/transmission`)
+    priority: 100
+    services:
+    - name: transmission-vpn
+      port: 80
+  - kind: Rule
+    match: PathPrefix(`/sonarr`)
+    priority: 100
+    services:
+    - name: sonarr
+      port: 80
+  - kind: Rule
+    match: PathPrefix(`/prowlarr`)
+    priority: 100
+    services:
+    - name: jackett-vpn
+      port: 80
+  - kind: Rule
+    match: PathPrefix(`/radarr`)
+    priority: 100
+    services:
+    - name: radarr
+      port: 80
+  - kind: Rule
+    match: PathPrefix(`/`)
+    priority: 1
+    services:
+    - name: plex-kube-plex
+      port: 32400

@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: chown-movies
+  namespace: media
+spec:
+  template:
+    spec:
+      containers:
+      - name: chown
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /movies"]
+        volumeMounts:
+        - mountPath: /movies
+          name: public-share
+          subPath: library/movies
+        securityContext:
+          runAsUser: 0
+      volumes:
+      - name: public-share
+        persistentVolumeClaim:
+          claimName: public-share
+      restartPolicy: Never

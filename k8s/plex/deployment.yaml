@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: {}
+  labels:
+    app: kube-plex
+    chart: kube-plex-0.2.7
+    heritage: Helm
+    release: plex
+  name: plex-kube-plex
+  namespace: media
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: plex
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      containers:
+        - env:
+            - name: TZ
+              value: Australia/Sydney
+            - name: PLEX_CLAIM
+              value: claim-YN7uJE6sjEJo22kB5Xzc
+            - name: PMS_INTERNAL_ADDRESS
+              value: http://plex-kube-plex:32400
+            - name: PMS_IMAGE
+              value: linuxserver/plex:amd64-latest
+            - name: KUBE_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: TRANSCODE_PVC
+              value: public-share
+            - name: DATA_PVC
+              value: public-share
+            - name: CONFIG_PVC
+              value: public-share
+          image: linuxserver/plex:amd64-latest
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /identity
+              port: 32400
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: plex
+          ports:
+            - containerPort: 32400
+              name: pms
+              protocol: TCP
+            - containerPort: 32400
+              name: http
+              protocol: TCP
+            - containerPort: 32443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /identity
+              port: 32400
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /data
+              name: public-share
+            - mountPath: /config
+              name: public-share
+            - mountPath: /transcode
+              name: public-share
+            - mountPath: /shared
+              name: shared
+      dnsPolicy: ClusterFirst
+      hostname: plex-kube-plex
+      nodeSelector:
+        beta.kubernetes.io/arch: amd64
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: plex-kube-plex
+      serviceAccountName: plex-kube-plex
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: public-share
+          persistentVolumeClaim:
+            claimName: public-share
+        - name: config
+          persistentVolumeClaim:
+            claimName: public-share
+        - emptyDir: {}
+          name: transcode
+        - emptyDir: {}
+          name: shared

@@ -1,0 +1,15 @@
+# Sensitive files
+shared/*vpn*.yaml
+shared/*secret*.yaml
+shared/*credentials*.yaml
+*.key
+*.pem
+*secret*.yaml
+
+# Temporary files
+*.tmp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
