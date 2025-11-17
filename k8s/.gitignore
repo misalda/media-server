@@ -5,6 +5,7 @@ shared/*credentials*.yaml
 *.key
 *.pem
 *secret*.yaml
+kubeconfig.yaml
 
 # Temporary files
 *.tmp

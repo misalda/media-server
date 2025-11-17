@@ -1,40 +1,39 @@
 # AGENTS.md
 
 ## Build/Lint/Test Commands
-- **Build**: No build system configured yet
-- **Lint**: No linting configured yet
-- **Test**: No tests configured yet
-- **Run single test**: N/A
+- **Build**: `make test-yaml` (validate YAML syntax)
+- **Lint**: No linting configured
+- **Test**: `make test` (YAML validation + dry-run deployment)
+- **Run single test**: N/A (infrastructure testing only)
 
 ## Code Style Guidelines
 
-### General
-- Use TypeScript for type safety
-- Follow semantic versioning for releases
-- Document APIs with OpenAPI/Swagger
+### Kubernetes Manifests
+- Use Helm-free YAML manifests in separate directories per service
+- Follow linuxserver.io container image conventions
+- Use consistent environment variables (TZ, PGID, PUID)
+- Implement VPN sidecars for torrent services (Gluetun)
 
 ### Naming Conventions
-- Use camelCase for variables and functions
-- Use PascalCase for classes and interfaces
-- Use UPPER_SNAKE_CASE for constants
-- Use kebab-case for file names
+- Services: lowercase with hyphens (jackett, plex, radarr)
+- Deployments: `{service}-kube-{service}` or `{service}-vpn` pattern
+- PVCs: descriptive names (public-share, media-storage)
+- Secrets: `{service}-credentials` or `{provider}-credentials`
 
-### Imports
-- Group imports: standard library, third-party, local
-- Use absolute imports for internal modules
-- Avoid wildcard imports
+### Security
+- Store VPN credentials in separate secret files
+- Use ClusterIP services for internal access only
+- Route torrent traffic through VPN sidecars
+- Gitignore sensitive files (*.key, *secret*.yaml, *credentials*.yaml)
 
-### Error Handling
-- Use try/catch for async operations
-- Return meaningful error messages
-- Log errors with appropriate levels
-
-### Types
-- Prefer interfaces over types for object shapes
-- Use union types for related variants
-- Avoid `any` type; use `unknown` when necessary
+### Deployment Structure
+- Shared resources in `shared/` directory (PVCs, ConfigMaps, Secrets)
+- Individual service directories with deployment.yaml and service.yaml
+- Use Makefile for automation (deploy, test, update, cleanup)
+- Namespace: `media` for all resources
 
 ### Formatting
-- Use 2 spaces for indentation
-- Max line length: 100 characters
-- Trailing commas in multi-line structures
+- 2-space indentation for YAML
+- Consistent label selectors and metadata
+- Resource limits and requests where appropriate
+- Comments for complex configurations
